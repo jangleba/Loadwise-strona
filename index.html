@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LOADWISE — indywidualne prowadzenie sportowe online</title>
+<meta name="description" content="LOADWISE to indywidualne prowadzenie sportowe online oparte na analizie obciążenia, gotowości i regeneracji zawodnika. Nie chodzi o robienie więcej — chodzi o podejmowanie lepszych decyzji treningowych." />
+<meta name="theme-color" content="#f6f4ef" />
+<style>
+  :root{
+    --bg:#f6f4ef;
+    --bg-soft:#efece4;
+    --panel:#ffffff;
+    --ink:#15171c;
+    --ink-soft:#4a4d55;
+    --gray:#797c84;
+    --gray-light:#a7a9ae;
+    --line:#e2ded4;
+    --line-strong:#cfcabb;
+    --accent:#3d5a80;
+    --accent-dark:#2c4360;
+    --accent-soft:rgba(61,90,128,.09);
+    --navy:#12151b;
+    --max:1160px;
+    --ff: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --ease: cubic-bezier(.16,1,.3,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+  }
+  body{
+    font-family:var(--ff);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  button{font-family:inherit}
+
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .8s var(--ease), transform .8s var(--ease)}
+  .reveal.is-visible{opacity:1;transform:translateY(0)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:200;
+    background:rgba(246,244,239,.82);
+    backdrop-filter:saturate(180%) blur(16px);
+    -webkit-backdrop-filter:saturate(180%) blur(16px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{max-width:var(--max);margin:0 auto;padding:0 24px;height:66px;display:flex;align-items:center;gap:40px}
+  .brand{font-size:18px;font-weight:700;letter-spacing:.01em;text-decoration:none;color:var(--ink)}
+  .nav-links{display:flex;align-items:center;gap:32px;margin-left:8px}
+  .nav-links a{font-size:14.5px;font-weight:500;color:var(--ink-soft);text-decoration:none;transition:color .15s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:16px}
+  .nav-cta .btn{display:none}
+  @media (min-width:900px){ .nav-cta .btn{display:inline-flex} }
+  .hamburger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:34px;height:34px;border:none;background:none;cursor:pointer}
+  .hamburger span{display:block;height:2px;width:20px;background:var(--ink);transition:transform .2s var(--ease), opacity .2s}
+  .hamburger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .hamburger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media (min-width:900px){ .hamburger{display:none} }
+  @media (max-width:899px){ .nav-links{display:none} }
+
+  .mobile-menu{
+    display:none;position:fixed;inset:66px 0 0 0;z-index:190;
+    background:var(--bg);padding:8px 24px 32px;border-top:1px solid var(--line);
+  }
+  .mobile-menu.open{display:block}
+  .mobile-menu a{display:block;padding:16px 0;font-size:19px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+  .mobile-menu .btn{margin-top:22px;width:100%;justify-content:center}
+
+  .sticky-cta{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:150}
+  @media (min-width:900px){ .sticky-cta{display:none} }
+
+  /* ── BUTTONS ── */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-size:15px;font-weight:600;text-decoration:none;
+    padding:13px 24px;border-radius:12px;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;
+    cursor:pointer;transition:background .18s, border-color .18s, transform .12s;
+    white-space:nowrap;
+  }
+  .btn:hover{background:#000;border-color:#000}
+  .btn:active{transform:scale(.98)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{background:var(--bg-soft)}
+  .btn-white{background:#fff;color:var(--navy);border-color:#fff}
+  .btn-white:hover{background:#e9e7e0;border-color:#e9e7e0}
+  .btn-accent{background:var(--accent);border-color:var(--accent)}
+  .btn-accent:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+  .btn-small{padding:10px 18px;font-size:13.5px}
+  .btn-block{width:100%}
+
+  /* ── TYPE ── */
+  h1,h2,h3{font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+  .section-label{font-size:13.5px;font-weight:600;color:var(--accent);margin-bottom:16px}
+  .section-title{font-size:clamp(28px,3.4vw,40px);line-height:1.16;margin-bottom:14px;letter-spacing:-.02em}
+  .section-desc{font-size:17px;color:var(--gray);max-width:600px;line-height:1.65}
+  section{padding:104px 0}
+  section.soft{background:var(--bg-soft)}
+  .section-head{margin-bottom:56px}
+  hr.hair{border:none;border-top:1px solid var(--line);margin:0}
+
+  /* ── HERO ── */
+  .hero{padding:70px 0 44px}
+  .hero-grid{display:grid;grid-template-columns:1fr;gap:56px;align-items:center}
+  @media (min-width:980px){ .hero-grid{grid-template-columns:1.05fr .95fr;gap:64px} }
+  .hero-kicker{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:22px}
+  .hero h1{font-size:clamp(34px,5vw,54px);line-height:1.1;margin-bottom:24px}
+  .hero p.lead{font-size:18px;color:var(--gray);line-height:1.7;max-width:520px;margin-bottom:32px}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+  .hero-note{font-size:14px;color:var(--gray-light)}
+
+  /* ── analytics panel (hero) ── */
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:30px;box-shadow:0 1px 2px rgba(20,20,20,.03), 0 20px 40px -30px rgba(20,20,20,.25);
+  }
+  .panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+  .panel-week{font-size:13px;font-weight:600;color:var(--gray)}
+  .panel-dot-row{display:flex;gap:5px}
+  .panel-dot{width:6px;height:6px;border-radius:50%;background:var(--line-strong)}
+  .panel-dot.on{background:var(--accent)}
+  .metric{margin-bottom:20px}
+  .metric:last-of-type{margin-bottom:0}
+  .metric-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+  .metric-name{font-size:14.5px;color:var(--ink-soft);font-weight:500}
+  .metric-val{font-size:14.5px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .metric-track{height:7px;border-radius:99px;background:var(--bg-soft);overflow:hidden}
+  .metric-fill{height:100%;border-radius:99px;background:var(--accent);width:0%;transition:width 1.1s var(--ease)}
+  .metric-fill.warn{background:#9c6b3e}
+  .panel-note{
+    margin-top:24px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:14px;color:var(--ink-soft);line-height:1.6;
+  }
+  .panel-note b{color:var(--ink)}
+
+  /* ── PROBLEM / SOLUTION ── */
+  .split{display:grid;grid-template-columns:1fr;gap:40px}
+  @media (min-width:860px){ .split{grid-template-columns:1fr 1fr;gap:64px} }
+  .split p{font-size:17px;color:var(--ink-soft);line-height:1.75;margin-bottom:16px}
+  .quote-block{
+    border-left:2px solid var(--accent);padding-left:22px;
+    font-size:19px;color:var(--ink);line-height:1.6;font-weight:500;
+  }
+  .factor-list{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .factor-list li{
+    font-size:13.5px;font-weight:500;color:var(--ink-soft);
+    padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);
+  }
+
+  /* ── ANALYSIS CHART ── */
+  .chart-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:36px 32px;
+  }
+  .chart-legend{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:22px}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-soft);font-weight:500}
+  .legend-swatch{width:12px;height:12px;border-radius:3px}
+  .chart-svg{width:100%;height:auto;display:block}
+  .chart-annotation{
+    margin-top:26px;padding-top:24px;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:1fr;gap:18px;
+  }
+  @media (min-width:760px){ .chart-annotation{grid-template-columns:1fr 1fr} }
+  .chart-annotation p{font-size:15.5px;color:var(--ink-soft);line-height:1.65}
+  .chart-annotation p b{color:var(--ink)}
+  .chart-sample-note{font-size:13px;color:var(--gray-light);margin-top:18px}
+
+  /* ── METHOD (scroll-linked) ── */
+  .method-grid{display:grid;grid-template-columns:1fr;gap:44px}
+  @media (min-width:920px){ .method-grid{grid-template-columns:.85fr 1.15fr;gap:64px} }
+  .method-visual{position:relative}
+  @media (min-width:920px){ .method-visual{position:sticky;top:100px;align-self:start} }
+  .method-visual-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:32px;min-height:280px;
+  }
+  .method-stage-num{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:14px}
+  .method-stage-title{font-size:22px;margin-bottom:12px;letter-spacing:-.01em}
+  .method-stage-desc{font-size:15.5px;color:var(--gray);line-height:1.65}
+  .method-progress{display:flex;gap:6px;margin-top:26px}
+  .method-progress span{flex:1;height:3px;border-radius:99px;background:var(--line)}
+  .method-progress span.done{background:var(--accent)}
+
+  .method-steps{display:grid;gap:0}
+  .method-step{
+    padding:34px 0;border-top:1px solid var(--line);
+    opacity:.4;transition:opacity .3s var(--ease);
+  }
+  .method-step:first-child{border-top:none}
+  .method-step.is-active{opacity:1}
+  .method-step-num{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px}
+  .method-step h4{font-size:19px;margin-bottom:8px;letter-spacing:-.01em}
+  .method-step p{font-size:15.5px;color:var(--gray);line-height:1.65;max-width:460px}
+
+  /* ── OFFER ── */
+  .offer-grid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media (min-width:900px){ .offer-grid{grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:22px;overflow:hidden} }
+  .offer-col{padding:38px 32px;display:flex;flex-direction:column;background:var(--panel)}
+  @media (max-width:899px){ .offer-col{border:1px solid var(--line);border-radius:18px} }
+  @media (min-width:900px){ .offer-col + .offer-col{border-left:1px solid var(--line)} }
+  .offer-col.featured{background:var(--bg-soft)}
+  .offer-badge{
+    display:inline-block;font-size:12px;font-weight:600;color:var(--accent);
+    background:var(--accent-soft);padding:6px 13px;border-radius:999px;margin-bottom:18px;width:fit-content;
+  }
+  .offer-name{font-size:13.5px;font-weight:600;color:var(--gray);margin-bottom:12px}
+  .offer-price{font-size:38px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .offer-price small{font-size:15px;font-weight:500;color:var(--gray)}
+  .offer-desc{font-size:15px;color:var(--gray);margin-bottom:24px;line-height:1.6;min-height:44px}
+  .offer-list{list-style:none;display:grid;gap:0;margin-bottom:26px}
+  .offer-list li{font-size:14.5px;color:var(--ink-soft);padding:10px 0 10px 24px;border-top:1px solid var(--line);position:relative}
+  .offer-list li:first-child{border-top:none}
+  .offer-list li::before{content:'';position:absolute;left:0;top:15px;width:8px;height:8px;border-left:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(-45deg)}
+  .offer-col .btn{margin-top:auto}
+  .offer-below{text-align:center;font-size:15px;color:var(--gray);margin-top:32px}
+  .offer-below a{color:var(--accent);font-weight:600;text-decoration:none}
+  .offer-below a:hover{text-decoration:underline}
+
+  /* ── FOR WHOM / ABOUT ── */
+  .about-grid{display:grid;grid-template-columns:1fr;gap:48px}
+  @media (min-width:900px){ .about-grid{grid-template-columns:1.1fr .9fr;gap:72px} }
+  .about-box p{font-size:17px;color:var(--ink-soft);line-height:1.75;margin-bottom:18px}
+  .about-name{font-size:14px;font-weight:600;color:var(--gray);margin-bottom:8px}
+  .about-role{font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-.01em}
+  .about-tags{list-style:none;display:grid;gap:0;border-top:1px solid var(--line);align-self:start}
+  .about-tags li{font-size:14.5px;color:var(--ink-soft);padding:14px 0;border-bottom:1px solid var(--line)}
+
+  /* ── PROCESS (jak zaczynamy) ── */
+  .process-grid{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--line)}
+  @media (min-width:760px){ .process-grid{grid-template-columns:repeat(4,1fr)} }
+  .process-item{padding:30px 0;border-bottom:1px solid var(--line)}
+  @media (min-width:760px){
+    .process-item{padding:0 26px 0 0;border-bottom:none}
+    .process-item + .process-item{padding-left:26px;border-left:1px solid var(--line)}
+  }
+  .process-num{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:14px}
+  .process-item h4{font-size:16.5px;margin-bottom:8px}
+  .process-item p{font-size:14.5px;color:var(--gray);line-height:1.6}
+
+  /* ── FAQ ── */
+  .faq-list{border-top:1px solid var(--line)}
+  details.faq-item{border-bottom:1px solid var(--line);padding:22px 0}
+  details.faq-item summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    font-size:17px;font-weight:600;color:var(--ink);
+  }
+  details.faq-item summary::-webkit-details-marker{display:none}
+  .faq-plus{width:20px;height:20px;flex-shrink:0;position:relative}
+  .faq-plus::before, .faq-plus::after{content:'';position:absolute;background:var(--ink);border-radius:2px;transition:transform .25s var(--ease), opacity .2s}
+  .faq-plus::before{left:0;top:9px;width:20px;height:2px}
+  .faq-plus::after{left:9px;top:0;width:2px;height:20px}
+  details.faq-item[open] .faq-plus::after{transform:rotate(90deg);opacity:0}
+  .faq-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s var(--ease)}
+  details.faq-item[open] .faq-body{grid-template-rows:1fr}
+  .faq-body-inner{overflow:hidden}
+  details.faq-item p{font-size:15.5px;color:var(--gray);line-height:1.7;margin-top:14px;max-width:680px}
+
+  /* ── FINAL CTA ── */
+  .final-cta{background:var(--navy);color:#fff;padding:104px 0;text-align:center}
+  .final-cta .section-title{color:#fff}
+  .final-cta p{font-size:17px;color:#a9adb8;max-width:560px;margin:0 auto 34px;line-height:1.7}
+  .final-cta .btn-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .final-cta .fine{font-size:13px;color:#6d707c}
+
+  /* ── FORM ── */
+  .form-grid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media (min-width:920px){ .form-grid{grid-template-columns:1.15fr .85fr;gap:56px} }
+  .form-fields{display:grid;gap:18px}
+  .field-row{display:grid;grid-template-columns:1fr;gap:18px}
+  @media (min-width:560px){ .field-row{grid-template-columns:1fr 1fr} }
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:7px}
+  input, select, textarea{
+    width:100%;padding:13px 15px;border:1px solid var(--line-strong);border-radius:10px;
+    font-family:inherit;font-size:16px;color:var(--ink);background:var(--panel);
+    transition:border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--accent)}
+  textarea{min-height:110px;resize:vertical}
+  .form-note{font-size:13px;color:var(--gray-light);margin-top:14px;text-align:center}
+  .form-thanks{display:none;text-align:center;padding:40px 20px}
+  .form-thanks.show{display:block}
+  .form-thanks h3{font-size:22px;margin-bottom:10px}
+  .form-thanks p{color:var(--gray);font-size:15px}
+  .contact-side{display:grid;gap:28px;align-content:start}
+  .contact-block h4{font-size:13px;font-weight:600;color:var(--gray);margin-bottom:14px}
+  .contact-line{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+  .contact-line:first-child{border-top:none}
+  .contact-line span:first-child{color:var(--gray)}
+  .contact-line a{color:var(--ink);font-weight:600;text-decoration:none}
+  .contact-line a:hover{color:var(--accent)}
+
+  /* ── FOOTER ── */
+  footer{padding:52px 0 40px;border-top:1px solid var(--line)}
+  .footer-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px;margin-bottom:28px}
+  .footer-brand{font-size:18px;font-weight:700;margin-bottom:8px}
+  .footer-tag{font-size:14px;color:var(--gray)}
+  .footer-cols{display:flex;gap:60px;flex-wrap:wrap}
+  .footer-col h5{font-size:12.5px;font-weight:600;color:var(--gray);margin-bottom:14px}
+  .footer-col a{display:block;font-size:14px;color:var(--ink-soft);text-decoration:none;padding:6px 0}
+  .footer-col a:hover{color:var(--accent)}
+  .footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--gray-light)}
+  .footer-legal{display:flex;gap:20px}
+  .footer-legal a{color:var(--gray-light);text-decoration:none}
+  .footer-legal a:hover{color:var(--ink-soft)}
+
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;font-size:14px;font-weight:500;
+    padding:13px 22px;border-radius:12px;z-index:300;opacity:0;pointer-events:none;
+    transition:transform .3s var(--ease), opacity .3s;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="navbar">
+  <div class="nav-inner">
+    <a href="#top" class="brand">LOADWISE</a>
+    <div class="nav-links">
+      <a href="#metoda">Metoda</a>
+      <a href="#wspolpraca">Współpraca</a>
+      <a href="#o-mnie">O mnie</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-small" href="#kontakt">Rozpocznij współpracę</a>
+      <button class="hamburger" id="hamburgerBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Otwórz menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#metoda">Metoda</a>
+  <a href="#wspolpraca">Współpraca</a>
+  <a href="#o-mnie">O mnie</a>
+  <a href="#faq">FAQ</a>
+  <a class="btn btn-block" href="#kontakt">Rozpocznij współpracę</a>
+</div>
+
+<a href="#kontakt" class="btn sticky-cta">Rozpocznij współpracę</a>
+
+<main id="top">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="reveal">
+          <div class="hero-kicker">Indywidualne prowadzenie sportowe online</div>
+          <h1>Trenuj z planem.<br>Rozwijaj się bez przypadku.</h1>
+          <p class="lead">Indywidualne prowadzenie sportowe online oparte na analizie treningu, regeneracji i aktualnych możliwości zawodnika.</p>
+          <div class="hero-actions">
+            <a href="#kontakt" class="btn">Rozpocznij współpracę</a>
+            <a href="#metoda" class="btn btn-ghost">Zobacz, jak pracuję</a>
+          </div>
+          <p class="hero-note">Nie chodzi o robienie więcej. Chodzi o podejmowanie lepszych decyzji treningowych.</p>
+        </div>
+
+        <div class="reveal" style="transition-delay:.1s">
+          <div class="panel" id="heroPanel" aria-label="Przykładowy podgląd tygodnia zawodnika">
+            <div class="panel-top">
+              <span class="panel-week">Tydzień zawodnika — podgląd</span>
+              <span class="panel-dot-row" aria-hidden="true">
+                <span class="panel-dot on"></span><span class="panel-dot"></span><span class="panel-dot"></span><span class="panel-dot"></span>
+              </span>
+            </div>
+
+            <div class="metric">
+              <div class="metric-row"><span class="metric-name">Obciążenie treningowe</span><span class="metric-val" data-target="78">0%</span></div>
+              <div class="metric-track"><div class="metric-fill" data-fill="78"></div></div>
+            </div>
+            <div class="metric">
+              <div class="metric-row"><span class="metric-name">Gotowość</span><span class="metric-val" data-target="54">0%</span></div>
+              <div class="metric-track"><div class="metric-fill warn" data-fill="54"></div></div>
+            </div>
+            <div class="metric">
+              <div class="metric-row"><span class="metric-name">Regeneracja</span><span class="metric-val" data-target="61">0%</span></div>
+              <div class="metric-track"><div class="metric-fill" data-fill="61"></div></div>
+            </div>
+
+            <div class="panel-note">
+              <b>Kierunek treningu:</b> objętość ograniczona, priorytet — jakość ruchu i regeneracja.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROBLEM I ROZWIĄZANIE -->
+  <section aria-labelledby="problem-title">
+    <div class="wrap">
+      <div class="split reveal">
+        <div>
+          <h2 class="section-title" id="problem-title">Sam plan to za mało.</h2>
+          <p>Forma zawodnika nie rozwija się liniowo. Na trening wpływa dużo więcej niż sam harmonogram jednostek.</p>
+          <ul class="factor-list" aria-label="Czynniki wpływające na formę">
+            <li>Zmęczenie</li>
+            <li>Sen</li>
+            <li>Regeneracja</li>
+            <li>Mecze</li>
+            <li>Stres</li>
+            <li>Aktualna dyspozycja</li>
+          </ul>
+        </div>
+        <div>
+          <p class="quote-block">Dlatego LOADWISE nie jest nieruchomym PDF-em. To proces regularnej analizy i dopasowywania kolejnych decyzji treningowych.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZNACZĄCA ANALIZA ZAWODNIKA -->
+  <section class="soft" aria-labelledby="analysis-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">Analiza w praktyce</div>
+        <h2 class="section-title" id="analysis-title">Decyzje oparte na danych, nie na przeczuciu.</h2>
+        <p class="section-desc">Każda jednostka jest zestawiana z aktualnym obciążeniem, gotowością i regeneracją zawodnika — a plan reaguje na to, co pokazują dane.</p>
+      </div>
+
+      <div class="chart-card reveal">
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--accent)"></span>Obciążenie meczowe</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#9c6b3e"></span>Gotowość zawodnika</span>
+        </div>
+        <svg class="chart-svg" id="analysisChart" viewBox="0 0 720 260" role="img" aria-label="Wykres pokazujący wzrost obciążenia meczowego i spadek gotowości zawodnika w kolejnych tygodniach">
+          <line x1="0" y1="65" x2="720" y2="65" stroke="var(--line)" stroke-width="1"/>
+          <line x1="0" y1="130" x2="720" y2="130" stroke="var(--line)" stroke-width="1"/>
+          <line x1="0" y1="195" x2="720" y2="195" stroke="var(--line)" stroke-width="1"/>
+          <path id="loadLine" d="M0,180 L120,168 L240,140 L360,92 L480,70 L600,52 L720,40"
+                fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" />
+          <path id="readyLine" d="M0,70 L120,78 L240,95 L360,130 L480,150 L600,120 L720,108"
+                fill="none" stroke="#9c6b3e" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 6"/>
+          <circle cx="480" cy="150" r="5" fill="#9c6b3e" />
+          <line x1="480" y1="0" x2="480" y2="260" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 5"/>
+        </svg>
+        <div class="chart-annotation">
+          <p><b>Sygnał:</b> po wzroście obciążenia meczowego spadła gotowość zawodnika do kolejnej jednostki.</p>
+          <p><b>Reakcja:</b> kolejny trening został zmodyfikowany, aby ograniczyć ryzyko przeciążenia i utrzymać jakość pracy.</p>
+        </div>
+        <p class="chart-sample-note">Prezentowane dane są przykładowe i służą wyłącznie zilustrowaniu sposobu pracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METODA -->
+  <section id="metoda" aria-labelledby="method-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">Metoda LOADWISE</div>
+        <h2 class="section-title" id="method-title">Cztery etapy jednej decyzji.</h2>
+      </div>
+
+      <div class="method-grid">
+        <div class="method-visual reveal">
+          <div class="method-visual-card">
+            <div class="method-stage-num" id="stageNum">Etap 01</div>
+            <h3 class="method-stage-title" id="stageTitle">Poznaję zawodnika</h3>
+            <p class="method-stage-desc" id="stageDesc">Cele, historia treningu, poziom i ograniczenia — punkt wyjścia do dalszej pracy.</p>
+            <div class="method-progress" aria-hidden="true">
+              <span class="done" data-p="1"></span><span data-p="2"></span><span data-p="3"></span><span data-p="4"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="method-steps">
+          <div class="method-step is-active" data-stage="1" data-title="Poznaję zawodnika" data-desc="Cele, historia treningu, poziom i ograniczenia — punkt wyjścia do dalszej pracy.">
+            <div class="method-step-num">Etap 01</div>
+            <h4>Poznaję zawodnika</h4>
+            <p>Cele, historia treningu, poziom i ograniczenia.</p>
+          </div>
+          <div class="method-step" data-stage="2" data-title="Projektuję kierunek" data-desc="Priorytety oraz indywidualny plan działania dopasowany do sytuacji zawodnika.">
+            <div class="method-step-num">Etap 02</div>
+            <h4>Projektuję kierunek</h4>
+            <p>Priorytety oraz indywidualny plan działania.</p>
+          </div>
+          <div class="method-step" data-stage="3" data-title="Monitoruję odpowiedź" data-desc="Samopoczucie, wykonanie, regeneracja i obciążenie są na bieżąco obserwowane.">
+            <div class="method-step-num">Etap 03</div>
+            <h4>Monitoruję odpowiedź</h4>
+            <p>Samopoczucie, wykonanie, regeneracja i obciążenie.</p>
+          </div>
+          <div class="method-step" data-stage="4" data-title="Dostosowuję plan" data-desc="Regularne zmiany wynikające z aktualnej sytuacji zawodnika, nie ze sztywnego harmonogramu.">
+            <div class="method-step-num">Etap 04</div>
+            <h4>Dostosowuję plan</h4>
+            <p>Regularne zmiany wynikające z aktualnej sytuacji.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFERTA -->
+  <section class="soft" id="wspolpraca" aria-labelledby="offer-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">Współpraca</div>
+        <h2 class="section-title" id="offer-title">Wybierz formę współpracy.</h2>
+      </div>
+
+      <div class="offer-grid reveal">
+        <div class="offer-col">
+          <div class="offer-name">LOADWISE Audit</div>
+          <div class="offer-price">249 zł <small>jednorazowo</small></div>
+          <p class="offer-desc">Punktowa analiza obecnego treningu i kierunek dalszej pracy.</p>
+          <ul class="offer-list">
+            <li>Analiza obecnego treningu</li>
+            <li>Ocena celów, obciążeń i organizacji tygodnia</li>
+            <li>Wskazanie najważniejszych problemów</li>
+            <li>Konkretne rekomendacje i kierunek dalszej pracy</li>
+          </ul>
+          <button class="btn btn-ghost btn-block" type="button" data-select-package="LOADWISE Audit — 249 zł">Wybieram współpracę</button>
+        </div>
+
+        <div class="offer-col">
+          <div class="offer-name">Plan treningowy</div>
+          <div class="offer-price">199 zł <small>/ tydzień</small></div>
+          <p class="offer-desc">Indywidualny plan realizowany samodzielnie, aktualizowany co tydzień.</p>
+          <ul class="offer-list">
+            <li>Indywidualny plan dopasowany do celu</li>
+            <li>Struktura tygodnia i opis jednostek</li>
+            <li>Dopasowanie do treningów klubowych lub innych aktywności</li>
+            <li>Aktualizacja planu raz w tygodniu</li>
+          </ul>
+          <button class="btn btn-ghost btn-block" type="button" data-select-package="Plan treningowy — 199 zł / tydzień">Wybieram współpracę</button>
+        </div>
+
+        <div class="offer-col featured">
+          <span class="offer-badge">Najbardziej kompletna opcja</span>
+          <div class="offer-name">Prowadzenie online</div>
+          <div class="offer-price">299 zł <small>/ tydzień</small></div>
+          <p class="offer-desc">Regularna analiza, bieżące decyzje i pełna kontrola procesu.</p>
+          <ul class="offer-list">
+            <li>Indywidualne prowadzenie</li>
+            <li>Regularna analiza treningu i regeneracji</li>
+            <li>Bieżące modyfikowanie planu</li>
+            <li>Kontakt online i informacja zwrotna</li>
+            <li>Kontrola procesu i kolejnych etapów rozwoju</li>
+          </ul>
+          <button class="btn btn-accent btn-block" type="button" data-select-package="Prowadzenie online — 299 zł / tydzień">Wybieram współpracę</button>
+        </div>
+      </div>
+
+      <p class="offer-below reveal">Nie wiesz, która opcja będzie odpowiednia? Zacznij od <a href="#kontakt">krótkiej rozmowy</a> — wspólnie ustalimy najlepszą formę współpracy.</p>
+    </div>
+  </section>
+
+  <!-- O MNIE -->
+  <section id="o-mnie" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-box reveal">
+          <div class="section-label">O mnie</div>
+          <h2 class="section-title" id="about-title">Sport znam nie tylko z teorii.</h2>
+          <p>Nazywam się Jan Gleba. Jestem studentem fizjoterapii oraz trenerem przygotowania motorycznego. Trenowałem lekkoatletykę, specjalizując się w sprintach, a także piłkę nożną — również w Hiszpanii. Dzięki temu patrzę na trening jednocześnie z perspektywy zawodnika, trenera i przyszłego fizjoterapeuty.</p>
+          <p>Nie sprzedaję jednej metody dla wszystkich. Pomagam uporządkować trening i podejmować decyzje odpowiednie dla konkretnego zawodnika, jego celu oraz aktualnych możliwości.</p>
+        </div>
+        <ul class="about-tags reveal" aria-label="Perspektywa zawodowa">
+          <li>Student fizjoterapii</li>
+          <li>Trener przygotowania motorycznego</li>
+          <li>Doświadczenie w lekkoatletyce (sprint)</li>
+          <li>Doświadczenie w piłce nożnej, w tym w Hiszpanii</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- JAK ZACZYNAMY -->
+  <section class="soft" aria-labelledby="process-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">Jak zaczynamy</div>
+        <h2 class="section-title" id="process-title">Prosty początek współpracy.</h2>
+      </div>
+      <div class="process-grid reveal">
+        <div class="process-item">
+          <div class="process-num">Krok 01</div>
+          <h4>Wypełniasz formularz</h4>
+          <p>Krótko opisujesz swoją sytuację, cel i dotychczasowy trening.</p>
+        </div>
+        <div class="process-item">
+          <div class="process-num">Krok 02</div>
+          <h4>Analizuję Twoją sytuację</h4>
+          <p>Sprawdzam cele, poziom, obciążenia i dostępne warunki treningowe.</p>
+        </div>
+        <div class="process-item">
+          <div class="process-num">Krok 03</div>
+          <h4>Ustalamy formę współpracy</h4>
+          <p>Wybieramy opcję, która najlepiej odpowiada Twojej sytuacji.</p>
+        </div>
+        <div class="process-item">
+          <div class="process-num">Krok 04</div>
+          <h4>Rozpoczynamy pracę</h4>
+          <p>Ruszamy z procesem i na bieżąco monitorujemy jego przebieg.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 class="section-title" id="faq-title">Najczęstsze pytania</h2>
+      </div>
+      <div class="faq-list reveal">
+        <details class="faq-item">
+          <summary>Dla kogo jest prowadzenie LOADWISE?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Dla zawodników, którzy chcą trenować świadomie i regularnie — niezależnie od poziomu, o ile są gotowi na systematyczną pracę.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Czy muszę być zawodowym sportowcem?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Nie. Współpraca jest dopasowywana do aktualnego poziomu i możliwości zawodnika, nie do jednego, z góry założonego profilu.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Czym różni się plan od prowadzenia online?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Plan treningowy otrzymujesz w formie cotygodniowej struktury do samodzielnej realizacji. Prowadzenie online obejmuje dodatkowo regularną analizę, bieżący kontakt i modyfikacje wynikające z Twojej aktualnej sytuacji.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Jak często aktualizowany jest plan?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Plan treningowy jest aktualizowany raz w tygodniu. W prowadzeniu online zmiany wprowadzane są na bieżąco, w zależności od sytuacji.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Jak wygląda kontakt?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Kontakt odbywa się online. Szczegóły ustalamy indywidualnie po wypełnieniu formularza zgłoszeniowego.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Czy mogę połączyć plan z treningami klubowymi?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Tak. Plan jest dopasowywany do treningów klubowych i innych aktywności, tak aby całość tworzyła spójne, kontrolowane obciążenie.</p></div></div>
+        </details>
+        <details class="faq-item">
+          <summary>Czy potrzebuję specjalistycznego sprzętu?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <div class="faq-body"><div class="faq-body-inner"><p>Nie. Plan jest dopasowywany do realnych warunków i dostępnego sprzętu — siłowni, boiska, domu lub podstawowego wyposażenia.</p></div></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="wrap">
+      <h2 class="section-title">Twój trening nie potrzebuje więcej chaosu.<br>Potrzebuje właściwego kierunku.</h2>
+      <p>Opowiedz mi o swoim celu i dotychczasowym treningu. Wspólnie ustalimy, która forma współpracy będzie odpowiednia.</p>
+      <div class="btn-row">
+        <a href="#kontakt" class="btn btn-white">Rozpocznij współpracę</a>
+      </div>
+      <p class="fine">Bez zobowiązań i bez automatycznej sprzedaży pakietu.</p>
+    </div>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="kontakt" aria-labelledby="contact-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-label">Zgłoszenie</div>
+        <h2 class="section-title" id="contact-title">Rozpocznij współpracę</h2>
+        <p class="section-desc">Wypełnij formularz — zgłoszenie trafi bezpośrednio do mnie.</p>
+      </div>
+
+      <div class="form-grid reveal">
+        <div>
+          <form class="form-fields" id="leadForm">
+            <div class="field-row">
+              <div>
+                <label for="name">Imię i nazwisko</label>
+                <input id="name" name="name" type="text" placeholder="Jan Kowalski" required />
+              </div>
+              <div>
+                <label for="sport">Dyscyplina</label>
+                <input id="sport" name="sport" type="text" placeholder="np. piłka nożna, lekkoatletyka" required />
+              </div>
+            </div>
+            <div class="field-row">
+              <div>
+                <label for="phone">Numer telefonu</label>
+                <input id="phone" name="phone" type="tel" placeholder="+48 xxx xxx xxx" required />
+              </div>
+              <div>
+                <label for="email">Adres e-mail</label>
+                <input id="email" name="email" type="email" placeholder="jan@przyklad.pl" required />
+              </div>
+            </div>
+            <div>
+              <label for="goal">Główny cel</label>
+              <input id="goal" name="goal" type="text" placeholder="np. poprawa formy, powrót po przerwie, przygotowanie do sezonu" required />
+            </div>
+            <div class="field-row">
+              <div>
+                <label for="place">Miejsce treningu</label>
+                <input id="place" name="place" type="text" placeholder="np. klub, siłownia, dom" />
+              </div>
+              <div>
+                <label for="equipment">Dostępny sprzęt</label>
+                <input id="equipment" name="equipment" type="text" placeholder="np. sztanga, gumy, brak sprzętu" />
+              </div>
+            </div>
+            <div>
+              <label for="package">Wybrana forma współpracy</label>
+              <select id="package" name="package" required>
+                <option value="" disabled selected>Wybierz opcję</option>
+                <option>LOADWISE Audit — 249 zł</option>
+                <option>Plan treningowy — 199 zł / tydzień</option>
+                <option>Prowadzenie online — 299 zł / tydzień</option>
+              </select>
+            </div>
+            <div>
+              <label for="notes">Dodatkowa wiadomość</label>
+              <textarea id="notes" name="notes" placeholder="Napisz kilka słów o sobie i swoim celu"></textarea>
+            </div>
+            <button class="btn btn-block" type="submit">Wyślij zgłoszenie</button>
+            <p class="form-note">Zgłoszenie zostanie wysłane bezpośrednio na moją skrzynkę.</p>
+          </form>
+
+          <div class="form-thanks" id="formThanks">
+            <h3>Dziękuję.</h3>
+            <p>Otrzymałem Twoje zgłoszenie i skontaktuję się z Tobą w sprawie dalszych kroków.</p>
+          </div>
+        </div>
+
+        <div class="contact-side">
+          <div class="contact-block">
+            <h4>Kontakt bezpośredni</h4>
+            <div class="contact-line"><span>Zasięg</span><span>Online — cała Polska</span></div>
+            <div class="contact-line"><span>Telefon</span><a href="tel:+48514315437">514 315 437</a></div>
+            <div class="contact-line"><span>E-mail</span><a href="mailto:nestafa52@gmail.com">nestafa52@gmail.com</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">LOADWISE</div>
+        <div class="footer-tag">Indywidualne prowadzenie sportowe online</div>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Strona</h5>
+          <a href="#metoda">Metoda</a>
+          <a href="#wspolpraca">Współpraca</a>
+          <a href="#o-mnie">O mnie</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h5>Kontakt</h5>
+          <a href="tel:+48514315437">514 315 437</a>
+          <a href="mailto:nestafa52@gmail.com">nestafa52@gmail.com</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> LOADWISE · Online — cała Polska</span>
+      <div class="footer-legal">
+        <a href="#" id="privacyLink">Polityka prywatności</a>
+        <a href="#" id="dataLink">Przetwarzanie danych</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.style.boxShadow = window.scrollY > 8 ? '0 1px 0 rgba(0,0,0,.04)' : 'none';
+  });
+
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburgerBtn.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('is-visible'));
+  }
+
+  // Hero panel: animate bars + counters once visible
+  const heroPanel = document.getElementById('heroPanel');
+  if (heroPanel) {
+    const runHero = () => {
+      heroPanel.querySelectorAll('.metric-fill').forEach(fill => {
+        const target = fill.getAttribute('data-fill');
+        requestAnimationFrame(() => { fill.style.width = target + '%'; });
+      });
+      heroPanel.querySelectorAll('.metric-val').forEach(val => {
+        const target = parseInt(val.getAttribute('data-target'), 10);
+        if (prefersReduced) { val.textContent = target + '%'; return; }
+        let current = 0;
+        const step = Math.max(1, Math.round(target / 30));
+        const tick = () => {
+          current = Math.min(target, current + step);
+          val.textContent = current + '%';
+          if (current < target) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    };
+    if ('IntersectionObserver' in window) {
+      const heroIO = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { runHero(); heroIO.disconnect(); }
+        });
+      }, { threshold: 0.4 });
+      heroIO.observe(heroPanel);
+    } else { runHero(); }
+  }
+
+  // Analysis chart: draw lines on reveal
+  const loadLine = document.getElementById('loadLine');
+  const readyLine = document.getElementById('readyLine');
+  const chart = document.getElementById('analysisChart');
+  if (chart && loadLine && readyLine) {
+    [loadLine, readyLine].forEach(line => {
+      const len = line.getTotalLength();
+      line.style.strokeDasharray = len;
+      line.style.strokeDashoffset = prefersReduced ? 0 : len;
+    });
+    if ('IntersectionObserver' in window) {
+      const chartIO = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !prefersReduced) {
+            loadLine.style.transition = 'stroke-dashoffset 1.4s ' + 'cubic-bezier(.16,1,.3,1)';
+            readyLine.style.transition = 'stroke-dashoffset 1.4s .15s ' + 'cubic-bezier(.16,1,.3,1)';
+            loadLine.style.strokeDashoffset = 0;
+            readyLine.style.strokeDashoffset = 0;
+            chartIO.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      chartIO.observe(chart);
+    }
+  }
+
+  // Method: scroll-linked stage highlighting
+  const methodSteps = document.querySelectorAll('.method-step');
+  const stageNum = document.getElementById('stageNum');
+  const stageTitle = document.getElementById('stageTitle');
+  const stageDesc = document.getElementById('stageDesc');
+  const progressSpans = document.querySelectorAll('.method-progress span');
+  if (methodSteps.length && 'IntersectionObserver' in window) {
+    const methodIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          methodSteps.forEach(s => s.classList.remove('is-active'));
+          entry.target.classList.add('is-active');
+          const n = entry.target.getAttribute('data-stage');
+          stageNum.textContent = 'Etap 0' + n;
+          stageTitle.textContent = entry.target.getAttribute('data-title');
+          stageDesc.textContent = entry.target.getAttribute('data-desc');
+          progressSpans.forEach(span => {
+            span.classList.toggle('done', parseInt(span.getAttribute('data-p'), 10) <= parseInt(n, 10));
+          });
+        }
+      });
+    }, { threshold: 0.55, rootMargin: '-10% 0px -40% 0px' });
+    methodSteps.forEach(s => methodIO.observe(s));
+  }
+
+  // Package select buttons -> scroll to form + preselect
+  document.querySelectorAll('[data-select-package]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.getAttribute('data-select-package');
+      const select = document.getElementById('package');
+      if (select) select.value = value;
+      document.getElementById('kontakt').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Form submit — keeps existing working backend
+  const form = document.getElementById('leadForm');
+  const formThanks = document.getElementById('formThanks');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = form.querySelector('[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Wysyłanie...';
+    submitBtn.disabled = true;
+    try {
+      const response = await fetch('https://formspree.io/f/meelwpnw', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      });
+      if (response.ok) {
+        showToast('✓ Zgłoszenie wysłane!');
+        form.style.display = 'none';
+        formThanks.classList.add('show');
+      } else {
+        throw new Error();
+      }
+    } catch {
+      showToast('Błąd wysyłania. Spróbuj ponownie lub zadzwoń bezpośrednio.');
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+
+  const toast = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(msg) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  document.getElementById('privacyLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showToast('Polityka prywatności — wkrótce dostępna.');
+  });
+  document.getElementById('dataLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showToast('Informacja o przetwarzaniu danych — wkrótce dostępna.');
+  });
+</script>
+</body>
+</html>
